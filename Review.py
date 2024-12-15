@@ -13,13 +13,13 @@ def get_all_user_reviews(user_id):
        r.basket_ID,
        s.store_name,
        r.rating,
-       r.content,
-       GROUP_CONCAT(DISTINCT concat(
+     r.content,
+       group_concat(distinct concat(
                              (select m2.menu_name
                              from Menu m2
                              where m2.menu_ID = bi.menu_ID)
                              )) as menu_names,
-       GROUP_CONCAT(DISTINCT rp.picture_url) as picture_urls,
+       group_concat(distinct rp.picture_url) as picture_urls,
        CASE
            WHEN TIMESTAMPDIFF(MINUTE, review_time, NOW()) < 1 THEN '방금 전'
            WHEN TIMESTAMPDIFF(MINUTE, review_time, NOW()) < 60 THEN CONCAT(TIMESTAMPDIFF(MINUTE, review_time, NOW()), '분 전')
@@ -29,11 +29,11 @@ def get_all_user_reviews(user_id):
        END as time_ago,
        rc.content as comment
     from Review r
-    join Store s on r.store_ID = s.store_ID
-    join Menu m on s.store_ID = m.store_ID
+    join store s on r.store_ID = s.store_ID
+    join menu m on s.store_ID = m.store_ID
     left join Review_picture rp on r.review_ID = rp.review_ID
     join basket b on r.basket_ID = b.basket_ID
-    join Basket_item bi on b.basket_ID = bi.basket_ID
+    join basket_item bi on b.basket_ID = bi.basket_ID
     left join Review_comment rc on r.review_ID = rc.review_ID
     where r.user_ID = %s
 group by r.review_ID, s.store_name, r.rating, r.content, comment
